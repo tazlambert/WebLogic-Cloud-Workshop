@@ -1,9 +1,13 @@
-# WebLogic-Cloud-Workshop
-Provisioning a Weblogic domain with WebLogic Cloud from OCI Marketplace
+# Welcome to Oracle WebLogic Move and Improve Hands On Lab
+
+## About this hands-on Hands On Lab ##
+
+This Hands On Lab main purpose is to show how to do move and improve of existing WebLogic Domain so that WebLogic's user will be able to experience WebLogic's improvement on Oracle Cloud Infrastructure and Marketplace. This hands on lab is made based on the [WebLogic Cloud Workshop](https://github.com/StephaneMoriceau/WebLogic-Cloud-Workshop/) also various references and has been tested by May 2020. If you have any questions or inquiries please email me to tazlambert@gmail.com.
 
 # 0. Prerequisites
 
-- [Oracle Cloud Infrastructure](https://cloud.oracle.com/en_US/cloud-infrastructure) enabled account. The tutorial has been tested using [Trial account](https://myservices.us.oraclecloud.com/mycloud/signup) (as of January, 2020).
+- [Oracle Cloud Infrastructure](https://cloud.oracle.com/en_US/cloud-infrastructure) enabled account. The tutorial has been tested using [Trial account](https://myservices.us.oraclecloud.com/mycloud/signup)
+- Basic understanding on Oracle WebLogic and Linux.
 
 # 1. Cloud Shell
 
