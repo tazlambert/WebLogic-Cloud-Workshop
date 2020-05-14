@@ -4,12 +4,12 @@
 
 This Hands On Lab main purpose is to show how to do move and improve of existing WebLogic Domain so that WebLogic's user will be able to experience WebLogic's improvement on Oracle Cloud Infrastructure and Marketplace. This hands on lab is made based on the [WebLogic Cloud Workshop](https://github.com/StephaneMoriceau/WebLogic-Cloud-Workshop/) also various references and has been tested by May 2020. If you have any questions or inquiries please email me to tazlambert@gmail.com.
 
-# 0. Prerequisites
+## Prerequisites
 
 - [Oracle Cloud Infrastructure](https://cloud.oracle.com/en_US/cloud-infrastructure) enabled account. The tutorial has been tested using [Trial account](https://myservices.us.oraclecloud.com/mycloud/signup)
 - Basic understanding on Oracle WebLogic and Linux.
 
-# 1. Cloud Shell
+## 1. Cloud Shell
 
 Oracle Cloud Infrastructure Cloud (OCI) Shell is a web browser-based terminal accessible from the Oracle Cloud Console. Cloud Shell is free to use (within monthly tenancy limits), and provides access to a Linux shell, with a pre-authenticated Oracle Cloud Infrastructure CLI and other useful tools for following Oracle Cloud Infrastructure service tutorials and labs. 
 
@@ -68,7 +68,7 @@ openssl rsa -pubout -outform DER -in ~/.oci/oci_api_key.pem | openssl md5 -c
 
 ---
 
-# 3. Encode the WebLogic administrator password in base64 format
+## 3. Encode the WebLogic administrator password in base64 format
 
 1. Choose a password (minimum password length of 8 characters, of which one is non-alphabetic)
 
@@ -86,7 +86,7 @@ $ echo -n 'Your_Password' | base64
 
 ---
 
-# 4. Create an SSH Key 
+## 4. Create an SSH Key 
 
 Create a secure shell (SSH) key pair so that you can access the compute instances in your Oracle WebLogic Server domains.
 
@@ -106,7 +106,7 @@ $ cat mykey.pub
 
 ---
 
-# 5. Download the terraform configuration files from this git repository
+## 5. Download the terraform configuration files from this git repository
 
 In your Cloud Shell window, type / paste the following comand:
 
@@ -114,7 +114,7 @@ In your Cloud Shell window, type / paste the following comand:
 bash <(curl -s https://raw.githubusercontent.com/tazlambert/weblogic-move-improve/master/terraform/download.sh)
 ```
 
-# 6. Update the terraform configuration file with the specifics of your environment
+## 6. Update the terraform configuration file with the specifics of your environment
 
 1. Copy the terraform configuration variables example file
 
@@ -184,7 +184,7 @@ A list of the regions offered by Oracle Cloud Infrastructure is displayed. Selec
 4. Save terraform.tfvars
 
 
-# 7. Create the required infrasture to provision a Domain in WebLogic Cloud from the OCI Marketplace
+## 7. Create the required infrasture to provision a Domain in WebLogic Cloud from the OCI Marketplace
 
 Execute the following steps in your CloudShell window.
 
@@ -236,7 +236,7 @@ key_OCID = ocid1.key.oc1.phx.a5pc75peaafqw.abyhqlj[..........]f5tskaoaa
 ---
 
 
-# 8. Provision a Domain in WebLogic Cloud from the OCI Markeplace
+## 8. Provision a Domain in WebLogic Cloud from the OCI Markeplace
 
 **Launch a Stack**
 
