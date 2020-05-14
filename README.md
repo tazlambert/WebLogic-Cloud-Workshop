@@ -33,7 +33,7 @@ You can use the icons in the upper right corner of the Cloud Shell window to min
 
 ---
 
-**Note:** For clipboard operations, Windows users can use Ctrl-C or Ctrl-Insert to copy, and Shift-Insert to paste. For Mac OS users, use Cmd-C to copy and Cmd-V to paste.
+**Note:** For clipboard operations, Windows users can use Ctrl-C to copy, and Ctrl-V to paste. For Mac OS users, use Cmd-C to copy and Cmd-V to paste.
 
 ---
 
@@ -48,7 +48,16 @@ Execute the following 3 steps as per [Required Keys and OCIDs](https://docs.clou
   * RSA key pair in PEM format (minimum 2048 bits)
   * Private key passphrase
   * Path to the private key: /Your_directory/.oci/oci_api_key.pem
+```
+mkdir ~/.oci
+openssl genrsa -out ~/.oci/oci_api_key.pem 2048
+chmod go-rwx ~/.oci/oci_api_key.pem
+openssl rsa -pubout -in ~/.oci/oci_api_key.pem -out ~/.oci/oci_api_key_public.pem
+```
   * Fingerprint of the public key.
+```
+openssl rsa -pubout -outform DER -in ~/.oci/oci_api_key.pem | openssl md5 -c
+```
   * Tenancy's OCID and user's OCID.
 
 3. Upload PEM the public key from the key pair in the Console
@@ -102,9 +111,7 @@ $ cat mykey.pub
 In your Cloud Shell window, type / paste the following comand:
 
 ```
-
-bash <(curl -s https://raw.githubusercontent.com/StephaneMoriceau/WebLogic-Cloud-Workshop/master/terraform/download.sh)
-
+bash <(curl -s https://raw.githubusercontent.com/tazlambert/weblogic-move-improve/master/terraform/download.sh)
 ```
 
 # 6. Update the terraform configuration file with the specifics of your environment
@@ -112,8 +119,7 @@ bash <(curl -s https://raw.githubusercontent.com/StephaneMoriceau/WebLogic-Cloud
 1. Copy the terraform configuration variables example file
 
 ```
-$ cd ~/WebLogic-Cloud-Workshop
-
+$ cd ~/weblogic-move-improve
 $ cp terraform.tfvars.example terraform.tfvars
 ```
 
@@ -169,7 +175,7 @@ Update the following variables with the values you recorded earlier (section #2,
 ---
 
 **Note:** To confirm your home region: Open the Console, open the Region menu, and then click Manage Regions.
-A list of the regions offered by Oracle Cloud Infrastructure is displayed. Select your **home region code** e.g. us-ashburn-1, us-phoenix-1.
+A list of the regions offered by Oracle Cloud Infrastructure is displayed. Select your **home region code** e.g. us-ashburn-1, us-phoenix-1, ap-tokyo-1.
 
 ---
 
