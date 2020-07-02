@@ -2,241 +2,64 @@
 
 ## About this hands-on Hands On Lab ##
 
-This Hands On Lab main purpose is to show how to do move and improve of existing WebLogic Domain so that WebLogic's user will be able to experience WebLogic's improvement on Oracle Cloud Infrastructure and Marketplace. This hands on lab is made based on the [WebLogic Cloud Workshop](https://github.com/StephaneMoriceau/WebLogic-Cloud-Workshop/) also various references and has been tested by May 2020. If you have any questions or inquiries please email me to lambertus.wardana@oracle.com.
+This Hands On Lab main purpose is to show how to do move and improve of existing WebLogic Domain so that WebLogic's user will be able to experience WebLogic's improvement on Oracle Cloud Infrastructure and Marketplace. This hands on lab is made based on the [WebLogic Cloud Workshop](https://github.com/StephaneMoriceau/WebLogic-Cloud-Workshop/) also various references and has been tested by July 2020. If you have any questions or inquiries please email me to lambertus.wardana@oracle.com.
 
 ## Prerequisites
 
 - [Oracle Cloud Infrastructure](https://cloud.oracle.com/en_US/cloud-infrastructure) enabled account. The tutorial has been tested using [Trial account](https://myservices.us.oraclecloud.com/mycloud/signup)
 - Basic understanding on Oracle WebLogic and Linux.
 
-## 1. Cloud Shell
+### 1. Create User
 
-Oracle Cloud Infrastructure Cloud (OCI) Shell is a web browser-based terminal accessible from the Oracle Cloud Console. Cloud Shell is free to use (within monthly tenancy limits), and provides access to a Linux shell, with a pre-authenticated Oracle Cloud Infrastructure CLI and other useful tools for following Oracle Cloud Infrastructure service tutorials and labs. 
+Create a user in IAM for the person or system who will be calling the API, and put that user in at least one IAM group with any desired permissions. See Adding Users. **You can skip this step if you want to run this lab as the user you are currently logged in.**
 
-Cloud Shell is a feature available to all OCI users, accessible from the Console. Your Cloud Shell will appear in the Oracle Cloud Console as a persistent frame of the Console, and will stay active as you navigate to different pages of the Console.
+### 2. Create Vault
 
-**Getting Started with Cloud Shell**
+Generate a Vault to store our encryption key and the secret that will be used as WebLogic admin password, first we need to access the hamburger menu in the top left scroll down until you can find **Security** and choose **Vault**
 
-To access Cloud Shell:
+![alt text](images/createkv1.png)
 
-1. Login to the Console.
+Make sure you are in the same compartment where you will install the WebLogic
 
-2. Click the Cloud Shell icon in the Console header. Note that the OCI CLI running in the Cloud Shell will execute commands against the region selected in the Console's Region selection menu when the Cloud Shell was started.
+![alt text](images/createkv2.png)
 
-![alt text](images/image005.png)
+Input the desired Vault name
 
-This will display the Cloud Shell in a "drawer" at the bottom of the console:
+![alt text](images/createkv3.png)
 
-![alt text](images/image006.png)
+Click create and that's it.
 
-You can use the icons in the upper right corner of the Cloud Shell window to minimize, maximize, restart, and close your Cloud Shell session.
+### 3. Create Encryption Key
 
----
+After creating Vault we need to create the master encryption key, by clicking the newly created vault, scroll down a bit until you can find master encryption key
 
-**Note:** For clipboard operations, Windows users can use Ctrl-C to copy, and Ctrl-V to paste. For Mac OS users, use Cmd-C to copy and Cmd-V to paste.
+![alt text](images/createkv4.png)
 
----
+Make sure correct compartment then click create key
 
-# 2. Required Keys and OCIDs
+![alt text](images/createkv5.png)
 
-Execute the following 3 steps as per [Required Keys and OCIDs](https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm):
+In above page input the name of your encryption key and choose the encryption algorithm and length after that click create and done
 
-1. Create a user in IAM for the person or system who will be calling the API, and put that user in at least one IAM group with any desired permissions. See Adding Users. **You can skip this step if you want to run this lab as the user you are currently logged in.**
+### 4. Create Secret
 
-2. Generate an API signing key and Record of the following items for later use in the lab:
+Create a secret which will be used as WebLogic admin password, first go the Vault that created in Step 2 then scroll down until you find Secrets and click Create Secret
 
-  * RSA key pair in PEM format (minimum 2048 bits)
-  * Private key passphrase
-  * Path to the private key: /Your_directory/.oci/oci_api_key.pem
-```
-mkdir ~/.oci
-openssl genrsa -out ~/.oci/oci_api_key.pem 2048
-chmod go-rwx ~/.oci/oci_api_key.pem
-openssl rsa -pubout -in ~/.oci/oci_api_key.pem -out ~/.oci/oci_api_key_public.pem
-```
-  * Fingerprint of the public key.
-```
-openssl rsa -pubout -outform DER -in ~/.oci/oci_api_key.pem | openssl md5 -c
-```
-  * Tenancy's OCID and user's OCID.
+![alt text](images/createkv6.png)
 
-3. Upload PEM the public key from the key pair in the Console
+Make sure correct compartment
 
----
+![alt text](images/createkv7.png)
 
-**Note:** Did you keep a record of the following? **RSA key pair in PEM format**, **Private key passphrase**, **Path of the private key on your desktop**, **Fingerptint of the public key**, **Tenancy's OCID**, and **user's OCID** for later use in this lab.
+In the above input the desired secret name and decide which compartment that will be used (must use the same compartment of WebLogic). Then choose the master encryption key that we created in Step 3 and insert your plain password as plain-text then click create.
 
----
+![alt text](images/createkv8.png)
 
-## 3. Encode the WebLogic administrator password in base64 format
+After finish creating you click the newly created secret and click copy for the OCID that will be used later during WebLogic creation.
 
-1. Choose a password (minimum password length of 8 characters, of which one is non-alphabetic)
+![alt text](images/createkv9.png)
 
-2. Encode the password in base64 format
-
-  In your CloudShell window, use the following command:
-
-```
-$ echo -n 'Your_Password' | base64
-```
-
----
-
-**Note:** Keep a record of the output of the above **'echo -n 'Your_Password' | base64'** command for later use in this lab.
-
----
-
-## 4. Create an SSH Key 
-
-Create a secure shell (SSH) key pair so that you can access the compute instances in your Oracle WebLogic Server domains.
-
-A key pair consists of a public key and a corresponding private key. When you create a domain using Oracle WebLogic Cloud, you specify the public key. You then access the compute instances from an SSH client using the private key.
-
-In your CLoud Shell window, use the ssh-keygen utility:
-
-```
-$ ssh-keygen -b 2048 -t rsa -f mykey
-    
-$ cat mykey.pub  
-```
-
----
-
-**Note:** Keep a record of the output of the above **'cat mykey.pub'** command for later use in this lab.
-
----
-
-## 5. Download the terraform configuration files from this git repository
-
-In your Cloud Shell window, type / paste the following comand:
-
-```
-bash <(curl -s https://raw.githubusercontent.com/tazlambert/weblogic-move-improve/master/terraform/download.sh)
-```
-
-## 6. Update the terraform configuration file with the specifics of your environment
-
-1. Copy the terraform configuration variables example file
-
-```
-$ cd ~/weblogic-move-improve
-$ cp terraform.tfvars.example terraform.tfvars
-```
-
-2. Open the terraform.tfvars file
-
-Use your preferred editor (for example vim or nano) to open the file terraform.tfvars. This should look like this:
-
-```
-# Identity and access parameters
-
-oci_base_identity = {
-  api_fingerprint      = "64:8c:3b:..."
-  api_private_key_path = "/Your_directory/.oci/oci_api_key.pem"
-  api_private_key_password = "api_private_key_passphrase"
-  compartment_id       = "ocid1.compartment.oc1..aaaaaaaa3l..."
-  tenancy_id           = "ocid1.tenancy.oc1..aaaaaaaaznlqfv..."
-  user_id              = "ocid1.user.oc1..aaaaaaaajbvljcmjw..."
-}
-
-oci_base_general = {
-  label_prefix = "base"
-  region       = "us-MYREGION-1"
-}
-
-
-# Base 64 password
-
-Base64_Password = "bWlu..."
-
-
-# Infrastructure parameters (if you change either Compartment_name or Dynamic_Group_name update the statement accordingly in the Create Policy for the Dynamic group in main.tf)
-
-Compartment_name = "WLS_Compartment"
-Dynamic_Group_name = "WLS_Dynamic_Group"
-Policy_name = "WLS_Policy"
-Vault_name = "WLS_Vault"
-Key_name = "WLS_Key"
-```
-
-
-3. Update the terraform.tfvars file with the specific of your environment
-
-Update the following variables with the values you recorded earlier (section #2, #3, and #4)
-
-- api_fingerprint            (See section #2)
-- api_private_key_path       (See section #2)
-- api_private_key_password   (See section #2)
-- compartment_id             (use the Tenancy OCID as per section #2) Note: using the Tenancy OCID selects the root compartment in that tenancy.
-- tenancy_id                 (See section #2)           
-- user_id                    (See section #2)
-
-- region (see note below)
----
-
-**Note:** To confirm your home region: Open the Console, open the Region menu, and then click Manage Regions.
-A list of the regions offered by Oracle Cloud Infrastructure is displayed. Select your **home region code** e.g. us-ashburn-1, us-phoenix-1, ap-tokyo-1.
-
----
-
-- Base64_Password            (See section #3)
-
-4. Save terraform.tfvars
-
-
-## 7. Create the required infrasture to provision a Domain in WebLogic Cloud from the OCI Marketplace
-
-Execute the following steps in your CloudShell window.
-
-1. Initialize Terraform:
-
-```
-$ terraform init
-```
-
-2. View what Terraform plans do before actually doing it:
-
-```
-$ terraform plan
-```
-
-3. Use Terraform to Provision resources:
-
-```
-$ terraform apply
-```
-
-The result has to be similar:
-
-```
-oci_kms_key.WLS_Key: Still creating... [1m10s elapsed]
-oci_kms_key.WLS_Key: Still creating... [1m20s elapsed]
-oci_kms_key.WLS_Key: Still creating... [1m30s elapsed]
-oci_kms_key.WLS_Key: Creation complete after 1m39s [id=ocid1.key.oc1.phx.a5pc75peaafqw.abyhqlj[..........]f5tskaoaa
-oci_kms_encrypted_data.WLS_Encrypted_Data: Creating...
-oci_kms_encrypted_data.WLS_Encrypted_Data: Creation complete after 2s [id=]
-
-Apply complete! Resources: 3 added, 0 changed, 2 destroyed.
-
-Outputs:
-
-Encrypted_data = IcsoJqtmC[..........]WJcMcUgAAAAA=
-cryptographic_endpoint = https://a5[..........]w-crypto.kms.us-phoenix-1.oraclecloud.com
-key_OCID = ocid1.key.oc1.phx.a5pc75peaafqw.abyhqlj[..........]f5tskaoaa
-
-```
-
----
-
-**Note:** Keep a record of the values of the following variables for later use in the lab:
-- **Encrypted_data**
-- **cryptographic_endpoint**
-- **key_OCI**
-
----
-
-
-## 8. Provision a Domain in WebLogic Cloud from the OCI Markeplace
+### 5. Provision a Domain in WebLogic Cloud from the OCI Markeplace
 
 **Launch a Stack**
 
@@ -293,7 +116,7 @@ The Configure Variables page opens.
 
 **Configure WebLogic Instance Parameters**
 
-![alt text](images/image071.png)
+![alt text](images/createkv9.png)
 
 Specify the parameters needed to configure the WebLogic instance domain.
 
@@ -345,48 +168,38 @@ The managed servers will be members of a cluster, unless you selected WebLogic S
 
 31. Do **NOT** select **Enable authentification using Identity Cloud Service**
 
-![alt text](images/image074.png)
+![alt text](images/createkv13.png)
 
 32. Database Strategy: keep the default **No Database**
 
-33. Key Management Service Key ID: **Enter the value of key_OCID in the output of the terraform apply command that you run in section #7**
-
-34. Key Management Service Endpoint: **Enter the value of crypographic_endpoint in the output of the terraform apply command that you run in section #7**
-
-35. At the bottom of the Configure Variables page, click **Next**
+33. At the bottom of the Configure Variables page, click **Next**
 
 You are now ready to create the stack.
 
-37. Review the Stack configuration and Click **Create**
+34. Review the Stack configuration and Click **Create**
 
+![alt text](images/createkv14.png)
 
-![alt text](images/image075.png)
-
-
-38. A Stack Job is being run and our WLS Server is being provisioned
+35. A Stack Job is being run and our WLS Server is being provisioned
 
 ![alt text](images/image180.png)
 
-
-39. While all resources being created we can check the Job Logs; it helps fixing potentially configuration errors if the provisioning fails
+36. While all resources being created we can check the Job Logs; it helps fixing potentially configuration errors if the provisioning fails
 
 ![alt text](images/image190.png)
 
-
-40. After a while (~ 15 minutes), the Job should complete with success
+37. After a while (~ 15 minutes), the Job should complete with success
 
 ![alt text](images/image200.png)
 
-
-41. We can check the Outputs section of Job Resources and check for two important values:
+38. We can check the Outputs section of Job Resources and check for two important values:
 
 - Sample Application URL
 - WebLogic Server Administration Console
 
 ![alt text](images/image210.png)
 
-
-42. Let's check the WLS admin console of the newly created WebLogic Server
+39. Let's check the WLS admin console of the newly created WebLogic Server
 
 - As we have chosen a Public Subnet for the WLS network, both Compute instances that have been created have public IPs associated.
 - In a new browser window, enter the **URL** as displayed in **WebLogic Server Administration Console**
@@ -394,26 +207,23 @@ You are now ready to create the stack.
 
 ![alt text](images/image220.png)
 
-
-43. We can see that our domain has one admin server and two managed servers:
+40. We can see that our domain has one admin server and two managed servers:
 
 ![alt text](images/image230.png)
 
-
-44. Let's check the WLS sample-app deployed in the newly created WebLogic Server
+41. Let's check the WLS sample-app deployed in the newly created WebLogic Server
 
 - In a new browser window, enter the **URL** as displayed in **WebLogic Server sample application**
 
 ![alt text](images/image235.png)
 
-45. We can check the Compute Instances to see what has been provisioned 
+42. We can check the Compute Instances to see what has been provisioned 
 
 From ![alt text](images/main_menu_icon.png) choose Core Infrastructure -> Compute -> Instances:
 
 ![alt text](images/image240.png)
 
-
-46. We can see two instances having our prefix mentioned during Stack configuration; one of them runs the admin server and a managed server and the other runs the second managed server:
+43. We can see two instances having our prefix mentioned during Stack configuration; one of them runs the admin server and a managed server and the other runs the second managed server:
 
 ![alt text](images/image250.png)
 
