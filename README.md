@@ -57,8 +57,6 @@ In the above input the desired secret name and decide which compartment that wil
 
 After finish creating you click the newly created secret and click copy for the OCID that will be used later during WebLogic creation.
 
-![alt text](images/createkv9.png)
-
 ### 5. Provision a Domain in WebLogic Cloud from the OCI Markeplace
 
 **Launch a Stack**
